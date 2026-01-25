@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const game = {
+      id: "狼人杀",
+      say: function () {
+        console.log("发言");
+      }
+    }
+    game[Symbol('vote')] = function () {
+      console.log("投票");
+    }
+    const methods = {
+      up: Symbol(),
+      down: Symbol()
+    }
+    game[methods.up] = function () {
+      console.log("上升")
+    }
+    game[methods.down] = function () {
+      console.log("下降")
+    }
+    console.log(game);
+  </script>
+</body>
+
+</html>

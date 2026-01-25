@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    //定义一个普通函数与一个箭头函数，均输出this.name
+    let common = function () {
+      console.log(this.name);
+    }
+    let arw = () => {
+      console.log(this.name);
+    }
+    //定义两个不同的name
+    window.name = 'window';
+    const school = {
+      name: 'school'
+    }
+    //调用函数输出name
+    common();//输出window
+    arw();//输出window
+    //用call函数调用函数
+    common.call(school);//输出school
+    arw.call(school);//输出window
+  </script>
+</body>
+
+</html>

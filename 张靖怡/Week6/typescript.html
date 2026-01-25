@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <title>TypeScript</title>
+  <style>
+    body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans",sans-serif;color:#333;background:#fafafa;margin:0;padding:40px;line-height:1.8}
+    h1{font-size:32px;border-bottom:3px solid #39c5bb;padding-bottom:12px;margin-bottom:30px}
+    h2{font-size:24px;margin-top:50px;color:#39c5bb}
+    h3{font-size:20px;margin-top:30px;color:#35495e}
+    code{background:#f4f4f4;padding:3px 6px;border-radius:4px;font-family:Menlo,Monaco,Consolas,"Courier New",monospace}
+    pre{background:#f6f8fa;padding:18px;border-radius:6px;overflow-x:auto;font-size:15px;line-height:1.6}
+    ul{padding-left:28px}
+    .warn{color:#e74c3c;font-weight:bold}
+    .todo{background:#fffbe6;border-left:4px solid #faad14;padding:12px 16px;margin:16px 0}
+    .footer{margin-top:80px;font-size:14px;color:#777}
+  </style>
+</head>
+<body>
+
+<h1>TypeScript</h1>
+<p>“够用”的 TS，能写 Vue3 + &lt;script setup&gt; + 组合式函数</p>
+
+
+<ul>
+  <li>跳过“类”“命名空间”“装饰器”——Vue3 基本不用</li>
+</ul>
+
+<h2>类型三件套：变量、参数、返回值</h2>
+<pre><code>// 变量
+let count: number = 0
+let msg: string = 'hi'
+
+// 函数
+function add(a: number, b: number): number {
+  return a + b
+}
+
+// 数组 & 联合类型
+type Status = 'loading' | 'success' | 'error'
+const list: Status[] = ['loading']</code></pre>
+<p class="todo"> Todo 里的 <code>status: string</code> 改成 <code>status: Status</code>，模板里输入拼错会爆红</p>
+
+<h2>接口 = 对象的“形状说明书”</h2>
+<pre><code>interface Todo {
+  id: number
+  text: string
+  done: boolean
+}
+
+// 数组版本
+const todos: Todo[] = reactive([])</code></pre>
+<p class="warn">接口只校验“形状”，不校验“多余属性”；写组件 props 时最常用</p>
+
+<h2>类型别名 & 泛型：让重复代码消失</h2>
+<pre><code>// 别名
+type FetchState&lt;T&gt; = {
+  data: T | null
+  loading: boolean
+  error: string | null
+}
+
+// 使用
+const userState: FetchState&lt;User&gt; = reactive({
+  data: null,
+  loading: false,
+  error: null
+})</code></pre>
+<p class="todo">封装 <code>useFetch&lt;T&gt;</code> 时，泛型一把梭，任何接口都能复用</p>
+
+<h2>类型断言</h2>
+<pre><code>const el = document.getElementById('app') as HTMLInputElement
+el.focus()</code></pre>
+<p class="warn">尽量少用，Vue3 里最常见场景是 <code>ref&lt;HTMLElement | null&gt;</code> 的初始赋值</p>
+
+<h2>非空断言：写模板用</h2>
+<pre><code>function greet(name?: string) {
+  console.log('Hi ' + name!)   // 确信外部一定传了
+}</code></pre>
+<p class="todo">在 <code>setup()</code> 里如果 props 已经给默认值，可以用 <code>!</code> 省掉一堆 <code>if</code></p>
+
+<h2>枚举：当“魔数”太多时</h2>
+<pre><code>enum Theme {
+  Light = 'light',
+  Dark = 'dark'
+}
+// 使用
+const theme = ref&lt;Theme&gt;(Theme.Light)</code></pre>
+<p class="todo">比写字符串字面量联合类型更“可拓展”，后续加主题只改枚举一处</p>
+
+<h2>内置工具类型：Vue 里最常用 4 个</h2>
+<table border="1" cellpadding="8" cellspacing="0">
+  <tr><th>工具类型</th><th>作用</th><th>Vue 场景举例</th></tr>
+  <tr><td><code>Partial&lt;T&gt;</code></td><td>全部变可选</td><td>表单重置函数 <code>resetForm(): Partial&lt;Form&gt;</code></td></tr>
+  <tr><td><code>Required&lt;T&gt;</code></td><td>全部变必填</td><td>校验规则对象</td></tr>
+  <tr><td><code>Pick&lt;T, K&gt;</code></td><td>只留某些键</td><td>子组件 props 只关心父组件对象的两个字段</td></tr>
+  <tr><td><code>Record&lt;K, T&gt;</code></td><td>键值映射</td><td><code>Record&lt;Locale, string&gt;</code> 做多语言</td></tr>
+</table>
+
+<h2>与 Composition API 结合</h2>
+<pre><code>// types.ts
+export interface User { id: number; name: string }
+
+// useUser.ts
+import { ref, onMounted } from 'vue'
+export default function useUser() {
+  const user = ref&lt;User | null&gt;(null)
+  const load = async () => {
+    user.value = await (await fetch('/api/user')).json() as User
+  }
+  onMounted(load)
+  return { user, load }
+}</code></pre>
+<p class="todo">把 <code>as User</code> 去掉立刻爆红 → 接口返回字段缺失一眼可见</p>
+
+<h2>模板里“默认推导”不够用？显式指定</h2>
+<pre><code>&lt;script setup lang="ts" generic="T extends string"&gt;
+defineProps&lt;{
+  items: T[]
+  modelValue: T
+}&gt;()
+&lt;/script&gt;</code></pre>
+<p class="warn">generic 属性需要 Vue 3.3+；低于此版本用函数式写法</p>
+
+<h2>打包报错：TS 写的类型没删？</h2>
+<pre><code>// tsconfig.json 打开隔离选项
+{
+  "compilerOptions": {
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true
+  }
+}</code></pre>
+<p class="todo">确保所有类型都用 <code>import type</code> 引入，否则 Vite 会提示“无法消除的导入”</p>
+
+
+
+
+
+
+
+
+
+
+
+</body>
+</html>

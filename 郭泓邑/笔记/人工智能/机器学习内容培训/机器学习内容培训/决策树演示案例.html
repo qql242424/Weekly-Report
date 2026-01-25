@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>用户信用评估决策树可视化</title>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 2.5rem;
+        }
+        
+        .subtitle {
+            color: #7f8c8d;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+        
+        .content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .tree-container {
+            flex: 1;
+            min-width: 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            overflow: auto;
+        }
+        
+        .controls {
+            flex: 0 0 300px;
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+        
+        .feature-control {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #34495e;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #bdc3c7;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        select:focus, input:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+        
+        button {
+            background: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+            margin-top: 10px;
+        }
+        
+        button:hover {
+            background: #2980b9;
+        }
+        
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+            display: none;
+        }
+        
+        .good {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .fair {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .bad {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .node {
+            cursor: pointer;
+        }
+        
+        .node circle {
+            fill: #fff;
+            stroke: #3498db;
+            stroke-width: 3px;
+        }
+        
+        .node text {
+            font: 14px sans-serif;
+            text-anchor: middle;
+            dominant-baseline: central;
+        }
+        
+        .node--internal circle {
+            fill: #3498db;
+        }
+        
+        .node--internal text {
+            fill: black;
+            font-weight: bold;
+        }
+        
+        .node--leaf circle {
+            fill: #2ecc71;
+            stroke: #27ae60;
+        }
+        
+        .node--leaf.bad circle {
+            fill: #e74c3c;
+            stroke: #c0392b;
+        }
+        
+        .node--leaf.fair circle {
+            fill: #f39c12;
+            stroke: #d35400;
+        }
+        
+        .link {
+            fill: none;
+            stroke: #bdc3c7;
+            stroke-width: 2px;
+        }
+        
+        .decision-path {
+            stroke: #3498db;
+            stroke-width: 3px;
+        }
+        
+        .explanation {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-top: 20px;
+        }
+        
+        .feature-explanation {
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ecf0f1;
+        }
+        
+        .feature-explanation:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+        
+        .feature-explanation h3 {
+            color: #2c3e50;
+            margin-bottom: 8px;
+        }
+        
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .tree-container, .controls {
+                flex: 1;
+                min-width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>用户信用评估决策树可视化</h1>
+            <p class="subtitle">基于机器学习算法的用户信用风险预测系统</p>
+        </header>
+        
+        <div class="content">
+            <div class="tree-container">
+                <h2>决策树可视化</h2>
+                <div id="tree"></div>
+            </div>
+            
+            <div class="controls">
+                <h2>用户特征输入</h2>
+                <div class="feature-control">
+                    <label for="income">月收入 (元)</label>
+                    <input type="number" id="income" min="0" max="50000" step="1000" value="15000">
+                </div>
+                
+                <div class="feature-control">
+                    <label for="age">年龄</label>
+                    <input type="number" id="age" min="18" max="80" value="35">
+                </div>
+                
+                <div class="feature-control">
+                    <label for="job">职业稳定性</label>
+                    <select id="job">
+                        <option value="stable">稳定 (>3年)</option>
+                        <option value="moderate">一般 (1-3年)</option>
+                        <option value="unstable">不稳定 (<1年)</option>
+                    </select>
+                </div>
+                
+                <div class="feature-control">
+                    <label for="debt">负债收入比 (%)</label>
+                    <input type="number" id="debt" min="0" max="100" step="5" value="30">
+                </div>
+                
+                <div class="feature-control">
+                    <label for="history">信用历史</label>
+                    <select id="history">
+                        <option value="excellent">优秀 (无逾期)</option>
+                        <option value="good">良好 (1-2次轻微逾期)</option>
+                        <option value="poor">较差 (多次逾期)</option>
+                    </select>
+                </div>
+                
+                <button id="evaluate">评估信用</button>
+                
+                <div id="result" class="result"></div>
+            </div>
+        </div>
+        
+        <div class="explanation">
+            <h2>决策树说明</h2>
+            <div class="feature-explanation">
+                <h3>决策树工作原理</h3>
+                <p>决策树是一种监督学习算法，通过一系列if-then规则对数据进行分类。在信用评估中，它根据用户特征（收入、年龄、职业稳定性等）预测信用风险。</p>
+            </div>
+            
+            <div class="feature-explanation">
+                <h3>特征重要性</h3>
+                <p>在本模型中，特征重要性排序为：月收入 > 信用历史 > 负债收入比 > 职业稳定性 > 年龄。决策树首先使用最重要的特征进行分割。</p>
+            </div>
+            
+            <div class="feature-explanation">
+                <h3>信用等级说明</h3>
+                <ul>
+                    <li><strong>良好</strong>: 低风险用户，建议批准贷款并给予优惠利率</li>
+                    <li><strong>一般</strong>: 中等风险用户，建议批准贷款但提高利率或降低额度</li>
+                    <li><strong>较差</strong>: 高风险用户，建议拒绝贷款申请或要求额外担保</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 决策树数据结构
+        const treeData = {
+            name: "月收入",
+            value: "income",
+            children: [
+                {
+                    name: "收入 ≤ 10000",
+                    condition: { feature: "income", operator: "<=", value: 10000 },
+                    children: [
+                        {
+                            name: "信用历史",
+                            value: "history",
+                            children: [
+                                {
+                                    name: "历史较差",
+                                    condition: { feature: "history", operator: "==", value: "poor" },
+                                    result: "bad"
+                                },
+                                {
+                                    name: "职业稳定性",
+                                    value: "job",
+                                    children: [
+                                        {
+                                            name: "不稳定",
+                                            condition: { feature: "job", operator: "==", value: "unstable" },
+                                            result: "bad"
+                                        },
+                                        {
+                                            name: "一般或稳定",
+                                            condition: { feature: "job", operator: "!=", value: "unstable" },
+                                            result: "fair"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    name: "收入 > 10000",
+                    condition: { feature: "income", operator: ">", value: 10000 },
+                    children: [
+                        {
+                            name: "负债收入比",
+                            value: "debt",
+                            children: [
+                                {
+                                    name: "负债比 ≤ 40%",
+                                    condition: { feature: "debt", operator: "<=", value: 40 },
+                                    children: [
+                                        {
+                                            name: "年龄",
+                                            value: "age",
+                                            children: [
+                                                {
+                                                    name: "年龄 ≤ 25",
+                                                    condition: { feature: "age", operator: "<=", value: 25 },
+                                                    result: "fair"
+                                                },
+                                                {
+                                                    name: "年龄 > 25",
+                                                    condition: { feature: "age", operator: ">", value: 25 },
+                                                    result: "good"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                },
+                                {
+                                    name: "负债比 > 40%",
+                                    condition: { feature: "debt", operator: ">", value: 40 },
+                                    children: [
+                                        {
+                                            name: "信用历史",
+                                            value: "history",
+                                            children: [
+                                                {
+                                                    name: "历史优秀",
+                                                    condition: { feature: "history", operator: "==", value: "excellent" },
+                                                    result: "fair"
+                                                },
+                                                {
+                                                    name: "历史一般或较差",
+                                                    condition: { feature: "history", operator: "!=", value: "excellent" },
+                                                    result: "bad"
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        };
+
+        // 初始化可视化
+        function initTreeVisualization() {
+            const margin = { top: 20, right: 120, bottom: 20, left: 120 };
+            const width = document.getElementById('tree').clientWidth - margin.right - margin.left;
+            const height = 500 - margin.top - margin.bottom;
+            
+            // 清空容器
+            d3.select("#tree").html("");
+            
+            // 创建SVG
+            const svg = d3.select("#tree")
+                .append("svg")
+                .attr("width", width + margin.right + margin.left)
+                .attr("height", height + margin.top + margin.bottom)
+                .append("g")
+                .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+            
+            // 创建树布局
+            const treeLayout = d3.tree().size([height, width]);
+            
+            // 转换数据为层次结构
+            const root = d3.hierarchy(treeData, d => d.children);
+            const treeNodes = treeLayout(root);
+            
+            // 添加连线
+            svg.selectAll(".link")
+                .data(treeNodes.links())
+                .enter()
+                .append("path")
+                .attr("class", "link")
+                .attr("d", d3.linkHorizontal()
+                    .x(d => d.y)
+                    .y(d => d.x));
+            
+            // 添加节点
+            const node = svg.selectAll(".node")
+                .data(treeNodes.descendants())
+                .enter()
+                .append("g")
+                .attr("class", d => {
+                    let className = "node";
+                    if (d.children) {
+                        className += " node--internal";
+                    } else {
+                        className += " node--leaf";
+                        if (d.data.result) {
+                            className += " " + d.data.result;
+                        }
+                    }
+                    return className;
+                })
+                .attr("transform", d => `translate(${d.y},${d.x})`);
+            
+            // 添加节点圆圈
+            node.append("circle")
+                .attr("r", 10);
+            
+            // 添加节点文本
+            node.append("text")
+                .attr("dy", ".35em")
+                .attr("x", d => d.children ? -15 : 15)
+                .style("text-anchor", d => d.children ? "end" : "start")
+                .text(d => d.data.name);
+            
+            // 添加决策路径高亮函数
+            window.highlightDecisionPath = function(pathNodes) {
+                // 重置所有路径
+                svg.selectAll(".link").classed("decision-path", false);
+                
+                // 高亮决策路径
+                svg.selectAll(".link")
+                    .filter(d => pathNodes.includes(d.source) && pathNodes.includes(d.target))
+                    .classed("decision-path", true);
+            };
+        }
+
+        // 评估用户信用
+        function evaluateCredit() {
+            // 获取用户输入
+            const userData = {
+                income: parseInt(document.getElementById('income').value),
+                age: parseInt(document.getElementById('age').value),
+                job: document.getElementById('job').value,
+                debt: parseInt(document.getElementById('debt').value),
+                history: document.getElementById('history').value
+            };
+            
+            // 遍历决策树
+            const path = [];
+            let currentNode = treeData;
+            path.push(currentNode);
+            
+            while (currentNode.children) {
+                let foundChild = false;
+                
+                for (const child of currentNode.children) {
+                    if (evaluateCondition(child.condition, userData)) {
+                        currentNode = child;
+                        path.push(currentNode);
+                        foundChild = true;
+                        break;
+                    }
+                }
+                
+                if (!foundChild) {
+                    // 如果没有匹配的子节点，选择第一个子节点
+                    currentNode = currentNode.children[0];
+                    path.push(currentNode);
+                }
+            }
+            
+            // 显示结果
+            const resultElement = document.getElementById('result');
+            resultElement.style.display = 'block';
+            resultElement.className = 'result ' + currentNode.result;
+            
+            let resultText = '';
+            switch(currentNode.result) {
+                case 'good':
+                    resultText = '信用良好 - 低风险用户';
+                    break;
+                case 'fair':
+                    resultText = '信用一般 - 中等风险用户';
+                    break;
+                case 'bad':
+                    resultText = '信用较差 - 高风险用户';
+                    break;
+                default:
+                    resultText = '无法评估';
+            }
+            
+            resultElement.textContent = resultText;
+            
+            // 高亮决策路径
+            // 注意：这里简化了路径高亮的实现，实际应用中需要更复杂的逻辑
+            // 来将路径节点与可视化中的节点对应起来
+            setTimeout(() => {
+                alert(`决策路径: ${path.map(node => node.name).join(' → ')}`);
+            }, 500);
+        }
+
+        // 评估条件
+        function evaluateCondition(condition, userData) {
+            if (!condition) return false;
+            
+            const featureValue = userData[condition.feature];
+            
+            switch(condition.operator) {
+                case "<=":
+                    return featureValue <= condition.value;
+                case ">":
+                    return featureValue > condition.value;
+                case "==":
+                    return featureValue === condition.value;
+                case "!=":
+                    return featureValue !== condition.value;
+                default:
+                    return false;
+            }
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initTreeVisualization();
+            
+            // 绑定评估按钮事件
+            document.getElementById('evaluate').addEventListener('click', evaluateCredit);
+            
+            // 初始评估
+            evaluateCredit();
+        });
+
+        // 窗口大小变化时重新绘制
+        window.addEventListener('resize', initTreeVisualization);
+    </script>
+</body>
+</html>

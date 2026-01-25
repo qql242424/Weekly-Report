@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <style>
+    #square {
+      width: 500px;
+      height: 500px;
+      background-color: purple;
+    }
+  </style>
+</head>
+
+<body>
+  <div id="square"></div>
+  <script>
+    const sq = document.getElementById("square");
+    sq.addEventListener("click", function () {
+      setTimeout(() => {
+        this.style.backgroundColor = "pink";
+      }, 2000)
+    })
+
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    function one() {
+      setTimeout(() => {
+        console.log("111");
+        iterator.next();
+      }, 1000)
+
+    }
+    function two() {
+      setTimeout(() => {
+        console.log("222");
+
+      }, 2000)
+      iterator.next();
+    }
+    function three() {
+      setTimeout(() => {
+        console.log("333");
+      }, 3000)
+    }
+
+    function* gen() {
+      yield one();
+      yield two();
+      yield three();
+
+    }
+
+    const iterator = gen();
+    iterator.next();
+
+    //不能直接写完所有的next，不然会异步执行，总时间为3s
+    //next放到定时器内部，放在外面会报错，原因为
+    //生成器还未完成当前yield的暂停or恢复，调用了同步执行的next()
+
+  </script>
+</body>
+
+</html>

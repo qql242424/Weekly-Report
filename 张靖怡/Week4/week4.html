@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>Vue 3 截取</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", sans-serif;
+      color: #333;
+      background: #fafafa;
+      margin: 0;
+      padding: 40px;
+      line-height: 1.8;
+    }
+    h1 {
+      font-size: 32px;
+      border-bottom: 3px solid #39b5cc;
+      padding-bottom: 12px;
+      margin-bottom: 30px;
+    }
+    h2 {
+      font-size: 24px;
+      margin-top: 50px;
+      color: #39b5cc;
+    }
+    h3 {
+      font-size: 20px;
+      margin-top: 30px;
+      color: #35495e;
+    }
+    p, li {
+      font-size: 17px;
+    }
+    code {
+      background: #f4f4f4;
+      padding: 3px 6px;
+      border-radius: 4px;
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+    }
+    pre {
+      background: #f6f8fa;
+      padding: 18px;
+      border-radius: 6px;
+      overflow-x: auto;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    ul {
+      padding-left: 28px;
+    }
+    .warn {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    .todo {
+    /* 感觉版面这个样子好帅（ */
+      background: #fffbe6;
+      border-left: 4px solid #faad14;
+      padding: 12px 16px;
+      margin: 16px 0;
+    }
+    .footer {
+      margin-top: 80px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+<body>
+
+
+<ol>
+  <li>从 Options API 平滑过渡到 Composition API，理解“为什么需要 setup”。</li>
+  <li>掌握响应式数据的两种创建方式：ref 与 reactive，能说出二者在源码层面的差异（Proxy 封装层级）。</li>
+  <li>熟练使用 &lt;script setup&gt; 语法糖，缩短 30% 以上样板代码。</li>
+  <li>理解 toRefs / toRef 的使用场景，解决“解构丢失响应式”这一高频踩坑点。</li>
+  <li>将上周的 TodoItem 组件完全重构为 Composition 风格，并抽离可复用的 useTodo 组合式函数。</li>
+</ol>
+
+
+
+<h3>setup返回值 </h3>
+<p>setup 函数在组件实例创建之前执行，因此其内部无法访问 this。返回值会被合并到组件的渲染上下文中，供模板使用。</p>
+<pre><code>export default {
+  setup() {
+    const msg = 'Hello Vue3'
+    const log = () => console.log(msg)
+    // 模板中可 {{ msg }}  @click="log"
+    return { msg, log }
+  }
+}</code></pre>
+
+
+<p class="warn"> 未 return 的变量，模板访问时会报错：Property 'xxx' was accessed during render but is not defined on instance.</p>
+
+<h3>setup与Options API差异</h3>
+
+<table border="1" cellpadding="8" cellspacing="0">
+  <tr><th>对比维度</th><th>Options API</th><th>Composition API（setup）</th></tr>
+  <tr><td>组织形式</td><td>按 data/methods/computed 分散</td><td>按逻辑关注点聚合</td></tr>
+  <tr><td>复用手段</td><td>mixin（易冲突）</td><td>自定义 hook（函数级复用）</td></tr>
+  <tr><td>TS 类型推导</td><td>依赖 this，复杂</td><td>显式返回，类型友好</td></tr>
+</table>
+
+
+<p class="todo">组件超过 300 行时，Options API 会出现“上下跳跃”问题，Composition 让同一块业务代码内聚，心智负担更低。</p>
+
+<h3>setup 语法糖 &lt;script setup&gt;</h3>
+<ul>
+  <li>编译期会把顶部声明自动变成组件的暴露项，无需 return。</li>
+  <li>动态组件 name 缺失？需要额外加一个普通 &lt;script&gt; 块：</li>
+</ul>
+<pre><code>&lt;script&gt;
+export default { name: 'TodoList' }
+&lt;/script&gt;
+
+&lt;script setup&gt;
+// 这里写 Composition 逻辑
+&lt;/script&gt;</code></pre>
+
+<h3>ref 创建基本类型响应式</h3>
+<p>ref 接收基本类型，返回 RefImpl 对象，.value 访问时触发 getter/setter，依赖收集与派发更新。</p>
+<pre><code>import { ref } from 'vue'
+const count = ref(0)
+console.log(count.value) // 0
+count.value++            // 视图更新</code></pre>
+
+
+
+<p class="warn">模板里无需 .value，编译器自动展开；但在普通 JS 函数里必须写，否则静默失败。</p>
+
+<h3>reactive 创建对象类型响应式</h3>
+<p>reactive 只能接受对象/数组，内部通过 ES6 Proxy 拦截属性的增删改查。</p>
+<pre><code>const state = reactive({
+  list: ['Angular', 'React'],
+  loading: false
+})
+
+
+
+
+state.list.push('Vue') // 触发更新</code></pre>
+<p class="todo">Proxy 对数组索引拦截的性能开销？问ai没看懂，下周再记录。</p>
+
+
+<h3>1</h3>
+<p>如果给 ref 传对象，内部会调用 reactive 进行转换，因此深层属性依然响应。</p>
+<pre><code>const user = ref({ name: 'Tom', age: 18 })
+user.value.name = 'Jerry' // 视图同步更新</code></pre>
+<p>ref 是“万能桶”，基本类型直接存，引用类型走 reactive。</p>
+想吃疯四了
+
+
+
+
+<h3>ref vs reactive</h3>
+<ol>
+  <li>基本类型 → 只能 ref</li>
+  <li>对象类型 → 两者皆可，ref 要多写 .value</li>
+  <li>替换整个对象 → ref 更直观：user.value = newObj</li>
+  <li>解构需求 → reactive 需 toRefs，ref 无此问题</li>
+  <li>代码统一性 → 全 ref 可减少心智负担，但对象层级深时 .value 满天飞</li>
+</ol>
+
+
+<h3>toRefs & toRef（14:17）</h3>
+<p>场景：父组件把 reactive 对象传递给子组件，子组件想解构使用。</p>
+<pre><code>// 父
+const article = reactive({ title: 'Vue3', reading: 100 })
+return { article }
+
+// 子 props
+const { title, reading } = toRefs(props.article)
+// title 已是 Ref，模板里直接 {{ title }}</code></pre>
+<p>toRef 用于单个属性映射，适合“只关心其中一个字段”的情况。</p>
+
+
+
+
+
+
+<h2>TodoItem 重构记录</h2>
+<ol>
+  <li>文件改名：TodoItem.vue → TodoItemScriptSetup.vue</li>
+  <li>删除 data()/methods，全部迁入 &lt;script setup&gt;</li>
+  <li>新增 src/composables/useTodo.js，抽离逻辑如下：</li>
+</ol>
+<pre><code>import { reactive, toRefs } from 'vue'
+
+export default function useTodo() {
+  const state = reactive({
+    list: [],
+    input: ''
+  })
+  function add() {
+    if (!state.input.trim()) return
+    state.list.push({ id: Date.now(), text: state.input, done: false })
+    state.input = ''
+  }
+  function remove(id) {
+    state.list = state.list.filter(item => item.id !== id)
+  }
+  function toggle(id) {
+    const t = state.list.find(item => item.id === id)
+    if (t) t.done = !t.done
+  }
+  // 暴露给模板
+  return { ...toRefs(state), add, remove, toggle }
+}</code></pre>
+
+
+
+
+
+
+<p>组件内调用：</p>
+<pre><code>&lt;script setup&gt;
+import useTodo from '@/composables/useTodo'
+const { list, input, add, remove, toggle } = useTodo()
+&lt;/script&gt;</code></pre>
+<p class="todo">同一块业务逻辑从 120 行压缩到 60 行，且可无痛移植到其他项目。</p>
+
+<h2>很烦的部分</h2>
+<table border="1" cellpadding="8" cellspacing="0">
+  <tr><th>问题描述</th><th>报错信息</th><th>根因</th><th>解决方案</th></tr>
+  <tr>
+    <td>直接给数组索引赋值</td>
+    <td>视图不更新</td>
+    <td>Proxy 无法拦截 arr[index] = x</td>
+    <td>使用 arr.splice(index, 1, newItem) 或 Vue.set</td>
+  </tr>
+  <tr>
+    <td>样式污染全局</td>
+    <td>别的组件样式被覆盖</td>
+    <td>未加 scoped</td>
+    <td>&lt;style scoped&gt; 或 CSS Modules</td>
+  </tr>
+  <tr>
+    <td>eslint 提示 defineProps 未定义</td>
+    <td>'defineProps' is not defined</td>
+    <td>宏未注入全局环境</td>
+    <td>eslintrc 加 env: { 'vue/setup-compiler-macros': true }</td>
+  </tr>
+</table>
+
+<h2>源码级疑问（待跟进）</h2>
+<ul>
+  <li>ref 对基本类型为何需要 .value，而 reactive 不需要？→ 计划阅读 @vue/reactivity 包，写源码解析笔记。</li>
+  <li>toRefs 转换后，Ref 的 dep 与原始 reactive 的 dep 是否同一个？→ 调试 devtools 观察依赖图。</li>
+  <li>大列表（1w+ 行）使用 reactive 是否会内存泄漏？→ 准备用 Chrome Memory 做压测。（视频提的，我我没想过啊</li>
+</ul>
+
+
+
+
+
+</body>
+</html>

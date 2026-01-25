@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    const p = new Promise(function (resolve, reject) {
+      setTimeout(function () {
+        const flag = Math.round(Math.random());
+        if (flag) {
+          const data = "我是一个数据";
+          resolve(data);
+        } else {
+          const warnning = "出错了。。。";
+          reject(warnning);
+        }
+      }, 1000);
+    });
+
+    p.then(function (value) {
+      console.log(value);
+    }, function (reason) {
+      console.error(reason)
+    });
+  </script>
+</body>
+
+</html>

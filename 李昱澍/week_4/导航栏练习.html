@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>好忙QAQ</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    /* 导航栏容器 */
+    .nav {
+      background-color: pink;
+      position: fixed;
+      top: 0;
+      width: 100%;
+    }
+
+    /* 导航链接基础样式 */
+    .nav a {
+      float: left;
+      color: black;
+      text-align: center;
+      padding: 15px;
+      text-decoration: none;
+      font-size: 17px;
+      border-left: 1px solid #fff;
+    }
+
+    /* “首页”项突出样式 */
+    .firstPage {
+      background-color: #ff0eb7;
+    }
+
+    /* hover效果 */
+    .nav a:hover {
+      background-color: black;
+      color: pink;
+    }
+
+    .nav .firstPage:hover {
+      background-color: black;
+      color: #ff0eb7;
+    }
+
+    /* 右侧链接容器 */
+    .nav-right {
+      float: right;
+    }
+
+    /* “更多”的样式 */
+    .dropdown {
+      float: left;
+      position: relative;
+    }
+
+    /* 下拉菜单容器 */
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 120px;
+      background-color: pink;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* 下拉项样式 */
+    .dropdown-content a {
+      float: none;
+      display: block;
+      border-top: 1px solid #fff;
+      text-align: left;
+    }
+
+    /* 鼠标悬停"更多"时显示菜单 */
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    /* 移除圆点 */
+    ul {
+      list-style: none;
+    }
+
+    /*  给body加顶部内边距  */
+    body {
+      padding-top: 50px
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="nav">
+    <a class="firstPage" href="#home">首页</a>
+    <a href="#exams">考试</a>
+    <a href="#homework">作业</a>
+
+    <!-- 下拉菜单（放在右侧链接前面，保证排列顺序） -->
+    <div class="dropdown">
+      <ul>
+        <li>
+          <a href="#" class="dropbtn">实验课</a> <!-- 下拉触发按钮 -->
+          <!-- 下拉内容容器（统一包裹下拉项） -->
+          <div class="dropdown-content">
+            <a href="#">数据结构</a>
+            <a href="#">C++</a>
+          </div>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 右侧链接（放在最后，确保靠右显示） -->
+    <div class="nav-right">
+      <a href="#login">登录</a>
+    </div>
+  </div>
+</body>
+
+</html>

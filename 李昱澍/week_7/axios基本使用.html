@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <div>
+        <button class="btn btn-primary"> GET请求 </button>
+        <button class="btn btn-warning"> POST请求 </button>
+        <button class="btn btn-success"> PUT请求 </button>
+        <button class="btn btn-danger"> DELETE请求 </button>
+    </div>
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/0.21.1/axios.min.js"></script>
+    <script>
+        // 1. 获取元素：按钮 
+        const btns = document.getElementsByTagName('button');
+        btns[0].addEventListener('click', () => {
+            axios.get('http://localhost:3000/posts')
+                .then(res => {
+                    console.log('查询成功！文章列表：');
+                    console.log(res.data);
+                })
+                .catch(err => {
+                    console.log(`查询失败：${err.message}`, 'error');
+                });
+        });
+        btns[1].addEventListener('click', () => {
+            const newPost = {
+                title: `文章3`,
+                views: 300,
+                id: "3"
+            };
+            axios.post('http://localhost:3000/posts', newPost)
+                .then(res => {
+                    console.log('新增成功！新增文章：');
+                    console.log(res.data);
+                })
+                .catch(err => {
+                    console.log(`新增失败：${err.message}`, 'error');
+                });
+        });
+        btns[2].addEventListener('click', () => {
+            const updateData = {
+                title: `修改后的文章3`,
+                views: 3000
+            };
+            axios.put('http://localhost:3000/posts/3', updateData)
+                .then(res => {
+                    console.log('修改成功！修改后文章：');
+                    console.log(res.data);
+                })
+                .catch(err => {
+                    console.log(`修改失败：${err.message}`, 'error');
+                });
+        });
+        btns[3].addEventListener('click', () => {
+            axios.delete('http://localhost:3000/posts/3')
+                .then(res => {
+                    console.log('删除成功！');
+                })
+                .catch(err => {
+                    console.log(`删除失败：${err.message}`, 'error');
+                });
+        });
+    </script>
+</body>
+
+</html>

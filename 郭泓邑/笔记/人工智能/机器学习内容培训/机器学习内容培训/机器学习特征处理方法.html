@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>机器学习特征处理方法表格</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #4b6cb7 0%, #182848 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 10px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #eee;
+        }
+        
+        h3 {
+            color: #3498db;
+            margin: 1.5rem 0 1rem;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            min-width: 800px;
+        }
+        
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            background-color: #3498db;
+            color: white;
+            position: sticky;
+            top: 0;
+        }
+        
+        tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        tr:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .data-type {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .method-name {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .code {
+            font-family: 'Courier New', monospace;
+            background-color: #f1f1f1;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        
+        .example-box {
+            background: #e8f4fc;
+            border-left: 4px solid #3498db;
+            padding: 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0 8px 8px 0;
+        }
+        
+        .category-header {
+            background-color: #2c3e50 !important;
+            color: white;
+            font-size: 1.1rem;
+        }
+        
+        .algorithm-table {
+            margin-top: 2rem;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem;
+            color: #7f8c8d;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .section {
+                padding: 1.5rem;
+            }
+            
+            th, td {
+                padding: 8px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>机器学习特征处理方法</h1>
+            <p class="subtitle">数据预处理完整指南</p>
+        </header>
+        
+        <section class="section">
+            <h2>特征处理方法概览</h2>
+            <p>特征处理是机器学习中的重要步骤，它能够提高模型性能、加快训练速度并增强模型的可解释性。以下表格总结了常见的数据类型及其对应的特征处理方法。</p>
+            
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>数据类型</th>
+                            <th>处理方法</th>
+                            <th>描述</th>
+                            <th>适用场景</th>
+                            <th>代码示例</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr class="category-header">
+                            <td colspan="5">数值型数据</td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">标准化 (Standardization)</td>
+                            <td>将数据转换为均值为0，标准差为1的分布</td>
+                            <td>数据分布近似正态分布，算法对特征尺度敏感</td>
+                            <td><span class="code">(x - mean) / std</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">归一化 (Normalization)</td>
+                            <td>将数据缩放到[0,1]区间</td>
+                            <td>需要限定数据范围，如图像处理、神经网络</td>
+                            <td><span class="code">(x - min) / (max - min)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">最大绝对值缩放 (MaxAbs Scaling)</td>
+                            <td>将数据缩放到[-1,1]区间，保留稀疏性</td>
+                            <td>包含零的稀疏数据</td>
+                            <td><span class="code">x / max(abs(x))</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">鲁棒缩放 (Robust Scaling)</td>
+                            <td>使用中位数和四分位数范围进行缩放</td>
+                            <td>数据包含异常值</td>
+                            <td><span class="code">(x - median) / IQR</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">对数变换 (Log Transformation)</td>
+                            <td>对数据应用对数函数</td>
+                            <td>处理偏态分布，降低数据方差</td>
+                            <td><span class="code">log(x + 1)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">连续数值</td>
+                            <td class="method-name">分箱/离散化 (Binning)</td>
+                            <td>将连续值转换为离散区间</td>
+                            <td>简化模型，处理非线性关系</td>
+                            <td><span class="code">pd.cut(x, bins)</span></td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="5">类别型数据</td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">无序类别</td>
+                            <td class="method-name">独热编码 (One-Hot Encoding)</td>
+                            <td>将每个类别转换为二进制列</td>
+                            <td>类别间无顺序关系，类别数量较少</td>
+                            <td><span class="code">pd.get_dummies(data)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">有序类别</td>
+                            <td class="method-name">标签编码 (Label Encoding)</td>
+                            <td>将类别转换为数字标签</td>
+                            <td>类别间有明确的顺序关系</td>
+                            <td><span class="code">LabelEncoder().fit_transform(data)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">高基数类别</td>
+                            <td class="method-name">目标编码 (Target Encoding)</td>
+                            <td>使用目标变量的统计信息编码</td>
+                            <td>类别数量非常多（高基数）</td>
+                            <td><span class="code">groupby(cat)[target].mean()</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">高基数类别</td>
+                            <td class="method-name">频率编码 (Frequency Encoding)</td>
+                            <td>使用类别出现频率进行编码</td>
+                            <td>类别数量非常多，且频率有意义</td>
+                            <td><span class="code">data.value_counts()</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">所有类别</td>
+                            <td class="method-name">二进制编码 (Binary Encoding)</td>
+                            <td>先将类别转换为数字，再转换为二进制</td>
+                            <td>高基数类别，减少维度爆炸</td>
+                            <td><span class="code">BinaryEncoder().fit_transform(data)</span></td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="5">缺失值处理</td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">所有类型</td>
+                            <td class="method-name">删除法</td>
+                            <td>直接删除包含缺失值的样本</td>
+                            <td>缺失值较少，数据量充足</td>
+                            <td><span class="code">data.dropna()</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">数值型</td>
+                            <td class="method-name">均值/中位数填充</td>
+                            <td>使用均值或中位数填充缺失值</td>
+                            <td>数据分布均匀，缺失值随机</td>
+                            <td><span class="code">data.fillna(data.mean())</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">数值型</td>
+                            <td class="method-name">常数填充</td>
+                            <td>使用特定常数（如0）填充缺失值</td>
+                            <td>稀疏数据，或缺失值有特殊含义</td>
+                            <td><span class="code">data.fillna(0)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">所有类型</td>
+                            <td class="method-name">前向/后向填充</td>
+                            <td>使用前一个或后一个值填充</td>
+                            <td>时间序列数据</td>
+                            <td><span class="code">data.fillna(method='ffill')</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">所有类型</td>
+                            <td class="method-name">模型预测填充</td>
+                            <td>使用其他特征预测缺失值</td>
+                            <td>缺失值与其他特征有关联</td>
+                            <td><span class="code">KNNImputer().fit_transform(data)</span></td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="5">文本数据</td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">文本</td>
+                            <td class="method-name">词袋模型 (Bag of Words)</td>
+                            <td>统计每个词在文本中出现的次数</td>
+                            <td>简单的文本分类任务</td>
+                            <td><span class="code">CountVectorizer().fit_transform(texts)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">文本</td>
+                            <td class="method-name">TF-IDF</td>
+                            <td>考虑词频和逆文档频率</td>
+                            <td>更精确的文本分析，考虑词的重要性</td>
+                            <td><span class="code">TfidfVectorizer().fit_transform(texts)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">文本</td>
+                            <td class="method-name">词嵌入 (Word Embedding)</td>
+                            <td>将词映射到低维向量空间</td>
+                            <td>需要语义理解的复杂NLP任务</td>
+                            <td><span class="code">Word2Vec, GloVe, BERT</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">文本</td>
+                            <td class="method-name">N-gram模型</td>
+                            <td>考虑连续N个词的组合</td>
+                            <td>需要捕捉短语或局部语境</td>
+                            <td><span class="code">CountVectorizer(ngram_range=(1,2))</span></td>
+                        </tr>
+                        
+                        <tr class="category-header">
+                            <td colspan="5">日期和时间数据</td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">日期/时间</td>
+                            <td class="method-name">周期性编码</td>
+                            <td>将时间转换为正弦/余弦函数</td>
+                            <td>捕捉时间的周期性特征</td>
+                            <td><span class="code">sin(2π * hour/24), cos(2π * hour/24)</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">日期/时间</td>
+                            <td class="method-name">时间间隔</td>
+                            <td>计算与参考点的时间差</td>
+                            <td>需要时间距离信息</td>
+                            <td><span class="code">(date - reference_date).days</span></td>
+                        </tr>
+                        <tr>
+                            <td class="data-type">日期/时间</td>
+                            <td class="method-name">时间部分提取</td>
+                            <td>提取年、月、日、小时等部分</td>
+                            <td>时间的不同部分有不同影响</td>
+                            <td><span class="code">date.year, date.month, date.hour</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="example-box">
+                <h3>使用提示</h3>
+                <p>在实际应用中，通常需要组合多种特征处理方法。例如，一个数据集可能同时包含数值特征、类别特征和文本特征，需要分别对每种类型应用合适的处理方法。</p>
+            </div>
+        </section>
+        
+        <section class="section">
+            <h2>不同算法的特征处理需求</h2>
+            <p>不同的机器学习算法对特征处理有不同的要求。以下表格总结了常见算法的特征处理需求：</p>
+            
+            <div class="table-container">
+                <table class="algorithm-table">
+                    <thead>
+                        <tr>
+                            <th>算法类型</th>
+                            <th>算法名称</th>
+                            <th>特征处理需求</th>
+                            <th>注意事项</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td rowspan="3" class="data-type">树模型</td>
+                            <td class="method-name">决策树</td>
+                            <td>对特征尺度不敏感</td>
+                            <td>通常不需要标准化，但离散化可能有助于简化树结构</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name">随机森林</td>
+                            <td>对特征尺度不敏感</td>
+                            <td>类别特征需要编码，数值特征可以保持原样</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name">梯度提升树(XGBoost, LightGBM)</td>
+                            <td>对特征尺度不敏感</td>
+                            <td>能自动处理缺失值，但类别特征需要编码</td>
+                        </tr>
+                        
+                        <tr>
+                            <td rowspan="3" class="data-type">距离模型</td>
+                            <td class="method-name">K-近邻(KNN)</td>
+                            <td>对特征尺度非常敏感</td>
+                            <td>必须进行标准化，否则距离计算会偏向大尺度特征</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name">支持向量机(SVM)</td>
+                            <td>对特征尺度非常敏感</td>
+                            <td>必须进行标准化，否则无法正确找到最优超平面</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name">K-均值聚类</td>
+                            <td>对特征尺度非常敏感</td>
+                            <td>必须进行标准化，否则聚类结果会偏向大尺度特征</td>
+                        </tr>
+                        
+                        <tr>
+                            <td rowspan="2" class="data-type">线性模型</td>
+                            <td class="method-name">线性回归</td>
+                            <td>对特征尺度敏感</td>
+                            <td>建议标准化，加快收敛并提高数值稳定性</td>
+                        </tr>
+                        <tr>
+                            <td class="method-name">逻辑回归</td>
+                            <td>对特征尺度敏感</td>
+                            <td>建议标准化，加快收敛并提高数值稳定性</td>
+                        </tr>
+                        
+                        <tr>
+                            <td class="data-type">神经网络</td>
+                            <td class="method-name">深度学习模型</td>
+                            <td>对特征尺度非常敏感</td>
+                            <td>必须标准化/归一化，否则训练会非常不稳定</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="example-box">
+                <h3>重要提示</h3>
+                <p>无论使用哪种算法，都必须确保训练集和测试集使用相同的特征处理参数。例如，如果使用训练集的均值和标准差对训练数据进行标准化，那么测试数据也必须使用相同的均值和标准差进行标准化。</p>
+            </div>
+        </section>
+        
+        <footer>
+            <p>机器学习特征处理方法表格 &copy; 2023</p>
+            <p>在实际项目中，建议使用Pipeline来确保特征处理的一致性</p>
+        </footer>
+    </div>
+</body>
+</html>

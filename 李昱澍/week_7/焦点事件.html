@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  昵称：<input type="text" id="username"><span id="reminder"></span>
+  <script>
+    var ele = document.getElementById("username");
+    var rmd = document.getElementById("reminder");
+    ele.onfocus = function () {
+      rmd.innerHTML = "请输入6~12位的数字、字母、下划线";
+    }
+    ele.onblur = function () {
+      var reg = /^\w{6,12}$/;
+      var flag = reg.test(ele.value);
+      if (flag) {
+        rmd.innerHTML = "验证通过";
+      } else {
+        rmd.innerHTML = "验证不通过";
+      }
+    }
+  </script>
+</body>
+
+</html>
