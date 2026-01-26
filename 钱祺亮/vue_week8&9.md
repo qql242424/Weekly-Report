@@ -98,5 +98,50 @@ let person = {
   name = '张三',
   age = 18
 }
-let {name,age}=toRefs(person)//这样的话就可以直接像ref那样通过.value来修改响应式数据了。
+let {name,age}=toRefs(person)//这样的话就可以直接像ref 那样通过.value来修改响应式数据了。
 ```
+
+### 计算属性
+
+通过以下代码，让fullName变成一个可读取可修改的变量
+
+```js
+let fullName = computed({
+  //被获取时进行的操作
+  get(){
+    return ...//你想进行的操作，别忘了如果是ref，要在变量后加上.value
+  }
+  //被修改时进行的操作，set里面必须要有一个参数
+  set(val){
+    //你想进行的操作，别忘了.value
+  }
+})
+```
+
+## watch监视
+
+* 作用：监视数据的变化
+* 特点：只能监视以下四种数据
+  * ref定义的数据
+  * reactive定义的数据
+  * 函数返回一个值（一个getter函数）
+  * 一个包含上述内容的数组
+* 情况：
+  * 监视ref定义的基本类型的数据
+  * 监视ref定义的对象类型的数据
+  * 
+
+```js
+// 监视参数不用加.value，因为只能监视ref定义的数据，不能监视ref定义的数据的value，会有警告，也不能使用。
+watch(){sum,(newValue,oldValue)=>{
+  console.log(...)
+},{deep:ture,immediate:ture}}
+
+// 监视参数为一个对象时，因为监视的其实是对象的地址值，所以如果只改变其中的属性的话，oldValue是和newValue没区别的，因为都是一个对象，都在一个地方，如果改变的是ref定义的对象，那么区别就会有所体现
+watch(){sum,(newValue,oldValue)=>{
+  console.log(...)
+},{deep:ture,immediate:ture}}
+```
+
+***在实际开发中，一般通过只在watch参数中写value来规避新旧值相同的处境。***
+
